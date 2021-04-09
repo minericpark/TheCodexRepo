@@ -1,5 +1,8 @@
 import configparser
+import time
+
 import requests
+from bs4 import BeautifulSoup
 
 # Use config.ini to hide security information
 def getAccessToken():
@@ -25,8 +28,6 @@ def getArtistID(name):
 
 def getTopTenSongs(name):
     id = getArtistID(name)
-    sortParam = "popularity"
-    numPerPage = 10
     api_url = "https://api.genius.com/artists/{}/songs".format(id)
     params = {
         "sort": "popularity",
@@ -43,4 +44,27 @@ def getLyricsArray(name):
         lyrics_array.append(song["url"])
     return lyrics_array
 
-print(getLyricsArray("drake"))
+def scrapeLyricText(name):
+    links = getLyricsArray(name)
+    song_lyrics = []
+    for link in links:
+        # Get the page using the link
+        page = requests.get(link)
+        # Parse the html content
+        soup = BeautifulSoup(page.content, 'lxml')
+
+        # Find the specific class called 'lyrics'
+        lyrics_div = soup.find(class_="lyrics")
+        # If condition required; scraping Genius sites are not consistent, anti-measure exists
+        if lyrics_div is not None:
+            # Get all the anchor tag content
+            anchor_tags = lyrics_div.find_all('a')
+            current_lyrics = []
+            for anchor in anchor_tags:
+                if len(anchor.text) > 0 and anchor.text[0] != "[":
+                    text = anchor.text.replace("\n", " ")
+                    current_lyrics.append(text)
+            song_lyrics.append(current_lyrics)
+    return song_lyrics
+
+print(scrapeLyricText("drake"))
