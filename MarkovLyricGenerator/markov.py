@@ -47,3 +47,4 @@ class MarkovLyrics:
                 next_word = next_words[next_index]
                 lyrics += next_word + ' '
                 current_word = next_word
+        return lyrics
