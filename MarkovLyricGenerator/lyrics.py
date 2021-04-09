@@ -66,5 +66,3 @@ def scrapeLyricText(name):
                     current_lyrics.append(text)
             song_lyrics.append(current_lyrics)
     return song_lyrics
-
-print(scrapeLyricText("drake"))
